@@ -6,6 +6,10 @@ from web_page import do_douban_login
 import save
 
 
+def dbg_site(web_page):
+    pass
+
+
 def main():
     web_page = WebPage()
     email = 'zmtest100@gmail.com'
@@ -14,9 +18,9 @@ def main():
         web_page, email, password)
     return
     save.file_save_page('douban', r.text)
-
     url = 'http://www.douban.com/group/'
     r = web_page.get(url)
+    web_page.cookies = r.cookies
     save.file_save_page('douban_2', r.text)
 
     save.save_cookie('douban', email, web_page.cookies)

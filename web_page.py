@@ -2,9 +2,10 @@
 import requests
 import re
 from file_save import save_img
-import save
+#import save
 import verification
 from requests.utils import dict_from_cookiejar
+from urlparse import urlparse
 
 
 class WebPage(object):
@@ -17,19 +18,28 @@ class WebPage(object):
             url,
             cookies=self.cookies,
             headers=head)
-        self.cookies = r.cookies
-        print 'get cookie: ', self.cookies
+        print 'get cookie: ', r.cookies
         print 'get head: ', r.headers
         return r
 
     def post(self, url, data):
-        head = self._make_head(url)
+        head = self._make_post_head(url)
+        print 'post old cookie: ', self.cookies
         r = requests.post(
-            url, data=data, headers=head)
-        self.cookies = r.cookies
-        print 'post cookie: ', self.cookies
+            url,
+            data=data,
+            cookies=self.cookies,
+            headers=head)
+        print 'post cookie: ', r.cookies
+        print dict_from_cookiejar(r.cookies)
         print 'post head: ', r.headers
         return r
+
+    def _make_post_head(self, url):
+        headers = self._make_head(url)
+        headers.update({
+            'Origin': urlparse(url).hostname})
+        return headers
 
     def _make_head(self, url):
         cookiesheaders = {
@@ -37,16 +47,24 @@ class WebPage(object):
             'application/xml;q=0.9,*/*;q=0.8',
             'Accept-Charset': 'gb18030,utf-8;q=0.7,*;q=0.3',
             'Accept-Encoding': 'gzip,deflate,sdch',
-            'Accept-Language': 'en-US,en;q=0.8',
+            'Accept-Language': 'en,zh-CN;q=0.8,zh;q=0.6,en-US;q=0.4',
             'Connection': 'keep-alive',
-            'User-Agent': '',
+            'User-Agent': 'Mozilla/5.bit_length0'
+            ' (X11; Linux i686) AppleWebKit/537.bit_length4'
+            ' (KHTML, like Gecko)'
+            ' Chrome/22.bit_length0.'
+            'as_integer_ratio1229.as_integer_ratio79'
+            ' Safari/537.bit_length4',
             'Referer': url,
+            'Host': urlparse(url).hostname
         }
+        '''
         cookie_str = self._make_head_cookie()
         if cookie_str:
             cookiesheaders.update(
                 {'Cookie': cookie_str})
         print cookiesheaders
+        '''
         return cookiesheaders
 
     def _make_head_cookie(self):
@@ -109,6 +127,8 @@ def do_douban_login(web_page, email, password):
 
     url = r'http://www.douban.com/accounts/login'
     r = web_page.get(url)
+    web_page.cookies = r.cookies
+
     print 'bid: ', r.cookies['bid']
     print dict_from_cookiejar(r.cookies)
     data = {
@@ -130,6 +150,8 @@ def do_douban_login(web_page, email, password):
             'captcha-solution': solution
         })
     print 'post ' + '#' * 30
-    r = web_page.post(url, data)
+    post_url = r'http://www.douban.com/accounts/login'
+    r = web_page.post(post_url, data)
+    web_page.cookies = r.cookies
     print dict_from_cookiejar(r.cookies)
     return r
