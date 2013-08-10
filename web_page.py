@@ -4,6 +4,7 @@ import re
 from file_save import save_img
 import save
 import verification
+from requests.utils import dict_from_cookiejar
 
 
 class WebPage(object):
@@ -11,17 +12,58 @@ class WebPage(object):
         self.cookies = None
 
     def get(self, url):
+        head = self._make_head(url)
         r = requests.get(
             url,
-            cookies=self.cookies)
+            cookies=self.cookies,
+            headers=head)
         self.cookies = r.cookies
+        print 'get cookie: ', self.cookies
+        print 'get head: ', r.headers
         return r
 
     def post(self, url, data):
+        head = self._make_head(url)
         r = requests.post(
-            url, data=data)
+            url, data=data, headers=head)
         self.cookies = r.cookies
+        print 'post cookie: ', self.cookies
+        print 'post head: ', r.headers
         return r
+
+    def _make_head(self, url):
+        cookiesheaders = {
+            'Accept': 'text/html,application/xhtml+xml,' +
+            'application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Charset': 'gb18030,utf-8;q=0.7,*;q=0.3',
+            'Accept-Encoding': 'gzip,deflate,sdch',
+            'Accept-Language': 'en-US,en;q=0.8',
+            'Connection': 'keep-alive',
+            'User-Agent': '',
+            'Referer': url,
+        }
+        cookie_str = self._make_head_cookie()
+        if cookie_str:
+            cookiesheaders.update(
+                {'Cookie': cookie_str})
+        print cookiesheaders
+        return cookiesheaders
+
+    def _make_head_cookie(self):
+        if self.cookies is None:
+            return None
+        dict_ = dict_from_cookiejar(self.cookies)
+        if not dict_:
+            return None
+        dict_line = ''
+        first = True
+        for k, v in dict_.items():
+            if not first:
+                dict_line += ';'
+            dict_line += k + '='
+            dict_line += v
+            first = False
+        return dict_line
 
 
 def download_img(web_page, url):
@@ -56,15 +98,19 @@ def _get_login_verify_id(text):
 
 
 def do_douban_login(web_page, email, password):
+    '''
     cookie = save.load_cookie('douban', email)
     if cookie:
         web_page.cookies = cookie
         url = r'http://www.douban.com/'
         r = web_page.get(url)
         return r
+    '''
 
     url = r'http://www.douban.com/accounts/login'
     r = web_page.get(url)
+    print 'bid: ', r.cookies['bid']
+    print dict_from_cookiejar(r.cookies)
     data = {
         'source': 'simple',
         'redir': 'http://www.douban.com/',
@@ -83,5 +129,7 @@ def do_douban_login(web_page, email, password):
             'captcha-id': verify_id,
             'captcha-solution': solution
         })
+    print 'post ' + '#' * 30
     r = web_page.post(url, data)
+    print dict_from_cookiejar(r.cookies)
     return r

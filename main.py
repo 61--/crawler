@@ -12,7 +12,13 @@ def main():
     password = 'douban100'
     r = do_douban_login(
         web_page, email, password)
+    return
     save.file_save_page('douban', r.text)
+
+    url = 'http://www.douban.com/group/'
+    r = web_page.get(url)
+    save.file_save_page('douban_2', r.text)
+
     save.save_cookie('douban', email, web_page.cookies)
     print '========================'
     '''
