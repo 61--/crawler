@@ -1,9 +1,6 @@
 #coding=utf-8
-from web_page import WebPage
-#from web_page import download_img
-#from verification import get_verification
-from web_page import do_douban_login
-import save
+
+from douban import Douban
 
 
 def dbg_site(web_page):
@@ -11,29 +8,16 @@ def dbg_site(web_page):
 
 
 def main():
-    web_page = WebPage()
-    email = 'zmtest100@gmail.com'
-    password = 'douban100'
-    r = do_douban_login(
-        web_page, email, password)
-    return
-    save.file_save_page('douban', r.text)
-    url = 'http://www.douban.com/group/'
-    r = web_page.get(url)
-    web_page.cookies = r.cookies
-    save.file_save_page('douban_2', r.text)
-
-    save.save_cookie('douban', email, web_page.cookies)
-    print '========================'
+    douban = Douban()
     '''
-    code = get_verification('test.img')
-    print code
-    return
+    if not douban.login('zmtest100@gmail.com', 'douban100'):
+        print 'login failed'
+        return
 
-    url = r'http://www.baidu.com/img/bdlogo.gif'
-    download_img(web_page, url)
     '''
-
+    print 'login success'
+    group_1 = r'http://www.douban.com/group/beijingzufang/'
+    douban.visit_group(group_1)
 
 if __name__ == '__main__':
     main()
