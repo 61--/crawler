@@ -15,7 +15,11 @@ def main():
 
     print 'login success'
     group_1 = r'http://www.douban.com/group/beijingzufang/'
-    douban.visit_group(group_1, 40)
+    douban.visit_group(group_1, 100)
+    group_2 = r'http://www.douban.com/group/zhufang/'
+    douban.visit_group(group_2, 100)
+    group_3 = r'http://www.douban.com/group/opking/'
+    douban.visit_group(group_3, 40)
 
 if __name__ == '__main__':
     main()
