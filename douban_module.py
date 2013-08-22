@@ -1,6 +1,6 @@
 #coding=utf-8
 import re
-import webbrower
+import webbrowser
 
 
 g_dbg_text_index = 0
@@ -63,8 +63,7 @@ def captcha_input(img_data):
 def show_link(urls):
     print urls
     for url in urls:
-        webbrower.open_new_tab(url)
-    pass
+        webbrowser.open(url)
 
 
 def dbg_save_page(page_text, name='test.html'):
@@ -75,8 +74,14 @@ def get_useful_post_url(group_text):
     useful_urls = []
     title_infos = re.findall(r'<td class="title">(.*?)</td>', group_text, re.S)
     for title_info in title_infos:
-        href = re.search(r'<a href="(.*?)"', title_info).group(1)
-        title = re.search(r'title="(.*?)"', title_info).group(1)
+        m_href = re.search(r'<a href="(.*?)"', title_info)
+        if not m_href:
+            continue
+        m_title = re.search(r'title="(.*?)"', title_info)
+        if not m_title:
+            continue
+        href = m_href.group(1)
+        title = m_title.group(1)
 
         m = re.search(u'.*(中关村|黄庄|知春).*', title)
         if m:
@@ -84,7 +89,3 @@ def get_useful_post_url(group_text):
             useful_urls.append(href)
 
     return useful_urls
-
-
-f_text = open('test.txt', 'r')
-get_useful_post_url(f_text.read())
