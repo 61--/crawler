@@ -6,6 +6,8 @@ from urlparse import urlparse
 class WebPage(object):
     def __init__(self):
         self.session = requests.Session()
+        self.proxies = None
+        self.timeout = 10
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml'
             ',application/xml;q=0.9,*/*;q=0.8',
@@ -22,7 +24,9 @@ class WebPage(object):
         self._update_headers(url)
         r = self.session.get(
             url,
-            headers=self.headers)
+            headers=self.headers,
+            proxies=self.proxies,
+            timeout=self.timeout)
         return r
 
     def post(self, url, data):
@@ -30,7 +34,9 @@ class WebPage(object):
         r = self.session.post(
             url,
             data=data,
-            headers=self.headers)
+            headers=self.headers,
+            proxies=self.proxies,
+            timeout=self.timeout)
         return r
 
     @property
@@ -40,6 +46,12 @@ class WebPage(object):
     @property
     def status_code(self):
         return self.session.status_code
+
+    def set_proxy(self, proxy):
+        self.proxies = {
+            'http': proxy,
+            'https': proxy,
+        }
 
     def _update_headers(self, url):
         self.headers['Referer'] = url,

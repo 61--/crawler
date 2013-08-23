@@ -70,7 +70,38 @@ def dbg_save_page(page_text, name='test.html'):
     pass
 
 
+g_keywords = [
+    u'中关村',
+    u'黄庄',
+    u'知春',
+    u'人大',
+    u'双榆树',
+    u'圆明园',
+    u'西苑',
+    u'苏州街',
+    u'稻香',
+]
+
+
+def _useful_title(title):
+    search = u'.*('
+    first = True
+    for Keyword in g_keywords:
+        if not first:
+            search += u'|'
+        else:
+            first = False
+        search += Keyword
+    search += ').*'
+    print search
+    m = re.search(search, title)
+    if m:
+        return True
+    return False
+
+
 def get_useful_post_url(group_text):
+    print group_text
     useful_urls = []
     title_infos = re.findall(r'<td class="title">(.*?)</td>', group_text, re.S)
     for title_info in title_infos:
@@ -83,8 +114,7 @@ def get_useful_post_url(group_text):
         href = m_href.group(1)
         title = m_title.group(1)
 
-        m = re.search(u'.*(中关村|黄庄|知春).*', title)
-        if m:
+        if _useful_title(title):
             print href, u' ======== ', title
             useful_urls.append(href)
 
